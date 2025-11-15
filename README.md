@@ -1,4 +1,4 @@
-# webman 简单易用多文件上传插件
+# 适配Symfony、NovaFrame的多文件上传组件
 
 [![Latest Stable Version](http://poser.pugx.org/tinywan/storage/v)](https://packagist.org/packages/tinywan/storage) [![Total Downloads](http://poser.pugx.org/tinywan/storage/downloads)](https://packagist.org/packages/tinywan/storage) 
 [![Daily Downloads](http://poser.pugx.org/tinywan/storage/d/daily)](https://packagist.org/packages/tinywan/storage)
@@ -21,16 +21,16 @@
 ## 安装
 
 ```php
-composer require tinywan/storage
+composer require xuey490/storage
 ```
 
 ## 基本用法
 
 ```php
-$res = Tinywan\Storage\Storage::uploadFile();
+$res = Framework\Storage\Storage::uploadFile();
 var_dump(json_encode($res));
 ```
-> ~~`v1.0.0` 版本之后不需要调用此方法`Tinywan\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
+> ~~`v1.0.0` 版本之后不需要调用此方法`Framework\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
 
 ### 上传成功信息
 ```json
@@ -76,7 +76,7 @@ runtime/storage/fd2d472da56c71a6da0a5251f5e1b586.png
 
 ```php
 'local' => [
-    'adapter' => \Tinywan\Storage\Adapter\LocalAdapter::class,
+    'adapter' => \Framework\Storage\Adapter\LocalAdapter::class,
     'root' => public_path() . '/storage',
 ],
 ```
@@ -137,11 +137,11 @@ composer require league/flysystem-aws-s3-v3
 public function upload(Request $request)
 {
     $base64 = $request->post('base64');
-    $response = \Tinywan\Storage\Storage::disk(\Tinywan\Storage\Storage::MODE_OSS, false)->uploadBase64($base64,'png');
+    $response = \Framework\Storage\Storage::disk(\Framework\Storage\Storage::MODE_OSS, false)->uploadBase64($base64,'png');
     var_dump($response);
 }
 ```
-> ~~`v1.0.0` 版本之后不需要调用此方法`Tinywan\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
+> ~~`v1.0.0` 版本之后不需要调用此方法`Framework\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
 
 #### 响应参数
 ```json
@@ -161,9 +161,9 @@ public function upload(Request $request)
 
 ```php
 $serverFile = runtime_path() . DIRECTORY_SEPARATOR . 'storage/webman.png';
-$res = \Tinywan\Storage\Storage::disk(\Tinywan\Storage\Storage::MODE_OSS, false)->uploadServerFile($serverFile);
+$res = \Framework\Storage\Storage::disk(\Framework\Storage\Storage::MODE_OSS, false)->uploadServerFile($serverFile);
 ```
-> ~~`v1.0.0` 版本之后不需要调用此方法`Tinywan\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
+> ~~`v1.0.0` 版本之后不需要调用此方法`Framework\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
 
 
 #### 响应参数

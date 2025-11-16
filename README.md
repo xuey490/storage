@@ -11,7 +11,7 @@
 | 🍇 七牛云     | ✅ | ✅| ✅|
 | 🍇 亚马逊（S3） | ✅ | ✅| ✅|
 
-### 改写：https://github.com/Tinywan/webman-storage，原版是结合workerman的 
+### 改写：https://github.com/Tinywan/webman-storage ，原版是结合workerman的 
 
 ## 安装
 

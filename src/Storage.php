@@ -71,15 +71,33 @@ class Storage
 	{
 		return "Framework\\Storage\\Adapter\\" . ucfirst($adapter) . "Adapter";
 	}
+	
+
+	/**
+	* 获取配置文件的数组
+	*/
+	private static function getConfig(): array
+	{
+		if(file_exists(BASE_PATH . '/config/storage.php'))
+		{
+			$configFile = BASE_PATH . '/config/storage.php';
+		}else{
+			$configFile = __DIR__ . '/config/storage.php';
+		}
+
+        $ConfigInit =  new \Framework\Config\ConfigLoader( $configFile );
+		$data = $ConfigInit->loadAll() ?? config('storage');
+
+		return $data;
+	}
 
     /**
      * 获取默认存储值（local / oss / cos ...）
      */
     public static function getDefaultStorage(): string
     {
-        $config =  new \Framework\Config\ConfigLoader(BASE_PATH . '/config' , 'storage.php');
-		$default = $config->get('storage.default');
-		
+        $data = static::getConfig();
+		$default = $data['default'];
 
 		return $default ?? self::MODE_LOCAL;
         //return config('storage.storage.default', self::MODE_LOCAL);
@@ -91,8 +109,7 @@ class Storage
     public static function getStorageConfig(string $name): array
     {
 
-        $ConfigInit =  new \Framework\Config\ConfigLoader(BASE_PATH . '/config', 'storage.php');
-		$data = $ConfigInit->loadAll();
+        $data = static::getConfig();
 		
 		$config = $data[$name] ?? null;
 

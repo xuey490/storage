@@ -1,18 +1,16 @@
 <?php
-/**
- * @desc AdapterAbstract 抽象适配器（Symfony 适配版）
- */
 
 declare(strict_types=1);
 
 namespace Framework\Storage\Adapter;
 
 use Framework\Storage\Exception\StorageException;
-
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 
-
+/**
+ * @desc AdapterAbstract 抽象适配器（Symfony 适配版）
+ */
 abstract class AdapterAbstract implements AdapterInterface
 {
 
@@ -100,13 +98,29 @@ abstract class AdapterAbstract implements AdapterInterface
 
 		return $result;
 	}
+	
+	/**
+	* 获取配置文件的数组
+	*/
+	private static function getConfig(): array
+	{
+		if(file_exists(BASE_PATH . '/config/storage.php'))
+		{
+			$configFile = BASE_PATH . '/config/storage.php';
+		}else{
+			$configFile = realpath(__DIR__ . '/../config/storage.php');
+		}
 
+        $ConfigInit =  new \Framework\Config\ConfigLoader( $configFile );
+		$data = $ConfigInit->loadAll() ?? config('storage');
+
+		return $data;
+	}
 
     protected function loadConfig(array $config)
     {
 
-        $ConfigInit =  new \Framework\Config\ConfigLoader(BASE_PATH . '/config' , 'storage.php');
-		$data = $ConfigInit->loadAll();
+		$data = static::getConfig();
 		$default = $data;
 
         $this->includes    = $config['include']      ?? $default['include'];
@@ -124,6 +138,7 @@ abstract class AdapterAbstract implements AdapterInterface
             'nums'         => $this->nums,
             'algo'         => $this->algo,
         ];
+
 
         if (isset($this->config['dirname']) && is_callable($this->config['dirname'])) {
             $this->config['dirname'] = (string)$this->config['dirname']() ?: $this->config['dirname'];

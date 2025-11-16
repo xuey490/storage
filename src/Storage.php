@@ -80,15 +80,17 @@ class Storage
 	{
 		if(file_exists(BASE_PATH . '/config/storage.php'))
 		{
-			$configFile = BASE_PATH . '/config/storage.php';
+			$configFile = BASE_PATH . '/config/storage1.php';
 		}else{
-			$configFile = __DIR__ . '/config/storage.php';
+			$configFile = __DIR__ . '/config/storage1.php';
 		}
 
         $ConfigInit =  new \Framework\Config\ConfigLoader( $configFile );
 		$data = $ConfigInit->loadAll() ?? config('storage');
-
-		return $data;
+		if($data != null ){
+			return $data;
+		}
+		return config('storage');
 	}
 
     /**
@@ -100,7 +102,6 @@ class Storage
 		$default = $data['default'];
 
 		return $default ?? self::MODE_LOCAL;
-        //return config('storage.storage.default', self::MODE_LOCAL);
     }
 
     /**
@@ -108,7 +109,7 @@ class Storage
      */
     public static function getStorageConfig(string $name): array
     {
-
+		
         $data = static::getConfig();
 		
 		$config = $data[$name] ?? null;

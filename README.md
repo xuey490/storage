@@ -1,12 +1,5 @@
 # 适配Symfony、NovaFrame的多文件上传组件
 
-[![Latest Stable Version](http://poser.pugx.org/tinywan/storage/v)](https://packagist.org/packages/tinywan/storage) [![Total Downloads](http://poser.pugx.org/tinywan/storage/downloads)](https://packagist.org/packages/tinywan/storage) 
-[![Daily Downloads](http://poser.pugx.org/tinywan/storage/d/daily)](https://packagist.org/packages/tinywan/storage)
-[![Latest Unstable Version](http://poser.pugx.org/tinywan/storage/v/unstable)](https://packagist.org/packages/tinywan/storage) 
-[![License](http://poser.pugx.org/tinywan/storage/license)](https://packagist.org/packages/tinywan/storage) 
-[![PHP Version Require](http://poser.pugx.org/tinywan/storage/require/php)](https://packagist.org/packages/tinywan/storage)
-[![last-commit](https://img.shields.io/github/last-commit/tinywan/storage/main)]()
-[![storage tag](https://img.shields.io/github/v/tag/tinywan/storage?color=ff69b4)]()
 
 ## 特性
 
@@ -18,6 +11,8 @@
 | 🍇 七牛云     | ✅ | ✅| ✅|
 | 🍇 亚马逊（S3） | ✅ | ✅| ✅|
 
+### 改写：https://github.com/Tinywan/webman-storage，原版是结合workerman的 
+
 ## 安装
 
 ```php
@@ -27,10 +22,16 @@ composer require xuey490/storage
 ## 基本用法
 
 ```php
-$res = Framework\Storage\Storage::uploadFile();
-var_dump(json_encode($res));
+	// 传入当前 Request
+	// 指定adapter 为local
+	#$storage = \Framework\Storage\Storage::disk('local', true, $request);
+	#$res = $storage->uploadFile();
+	#var_dump(json_encode($res));
+	
+	//默认模式
+	$res = \Framework\Storage\Storage::uploadFile();
+	var_dump(json_encode($res));
 ```
-> ~~`v1.0.0` 版本之后不需要调用此方法`Framework\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
 
 ### 上传成功信息
 ```json
@@ -72,7 +73,7 @@ runtime/storage/fd2d472da56c71a6da0a5251f5e1b586.png
 ```
 如果你希望上传的文件是可以直接访问或者下载的话，可以使用`public`存储方式。
 
-你可以在`config/plugin/tinywan/storage/app.php`配置文件中配置上传根目录，例如：
+你可以在`config/storage.php`配置文件中配置上传根目录，例如：
 
 ```php
 'local' => [
@@ -141,7 +142,6 @@ public function upload(Request $request)
     var_dump($response);
 }
 ```
-> ~~`v1.0.0` 版本之后不需要调用此方法`Framework\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
 
 #### 响应参数
 ```json
@@ -163,7 +163,6 @@ public function upload(Request $request)
 $serverFile = runtime_path() . DIRECTORY_SEPARATOR . 'storage/webman.png';
 $res = \Framework\Storage\Storage::disk(\Framework\Storage\Storage::MODE_OSS, false)->uploadServerFile($serverFile);
 ```
-> ~~`v1.0.0` 版本之后不需要调用此方法`Framework\Storage\Storage::config()` 初始化，会自动初始化，默认为配置文件`app.php`默认配置`default`配置上传适配器。~~
 
 
 #### 响应参数

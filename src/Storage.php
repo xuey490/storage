@@ -1,52 +1,25 @@
 <?php
-/**
- * @desc StorageService
- *
- */
 declare(strict_types=1);
 
 namespace Framework\Storage;
 
+use Framework\Storage\Exception\StorageException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * @see Storage
- * @mixin Storage
- *
- * @method static array uploadFile(array $config = [])  上传文件
- * @method static array uploadBase64(string $base64, string $extension = 'png') 上传Base64文件
- * @method static array uploadServerFile(string $file_path)  上传服务端文件
- */
+
 class Storage
 {
-    /**
-     * 本地对象存储.
-     */
     public const MODE_LOCAL = 'local';
-
-    /**
-     * 阿里云对象存储.
-     */
     public const MODE_OSS = 'oss';
-
-    /**
-     * 腾讯云对象存储.
-     */
     public const MODE_COS = 'cos';
-
-    /**
-     * 七牛云对象存储.
-     */
     public const MODE_QINIU = 'qiniu';
-
-    /**
-     * S3对象存储.
-     */
     public const MODE_S3 = 's3';
 
     /**
-     * Support Storage
+     * 允许的存储方式
      */
-    static $allowStorage = [
+    public static array $allowStorage = [
         self::MODE_LOCAL,
         self::MODE_OSS,
         self::MODE_COS,
@@ -55,50 +28,83 @@ class Storage
     ];
 
     /**
-     * @desc 存储磁盘
-     * @param string|null $name
-     * @param bool $_is_file_upload
-     * @return mixed
-     * 
+     * 获取适配器实例
      */
-    public static function disk(string $name = null, bool $_is_file_upload = true)
+    public static function disk(
+		string $name = null, 
+		bool $isFileUpload = true , 
+		Request $request = null , 
+		?RequestStack $requestStack = null
+	)
     {
-        $storage = $name ?? self::getDefaultStorage();
-        $config = self::getConfig($storage);
+        $storageName = $name ?: self::getDefaultStorage();  // local / oss / cos...
+
+        if (!in_array($storageName, self::$allowStorage, true)) {
+            throw new StorageException("不支持的存储方式：{$storageName}");
+        }
+
+        $config = self::getStorageConfig($storageName);
+
+		//$class = self::resolveAdapter($config['adapter']);
+
+        if (!isset($config['adapter']) || !class_exists($config['adapter'])) {
+            throw new StorageException("适配器不存在：{$config['adapter']}");
+        }
+		
+		// 如果外面传了 Request，注入
+		if ($request instanceof Request) {
+			$config['request'] = $request;
+		}
+
+		// 如果传了 RequestStack，也注入
+		if ($requestStack instanceof RequestStack) {
+			$config['request_stack'] = $requestStack;
+		}
+
         return new $config['adapter'](array_merge(
-            $config, ['_is_file_upload' => $_is_file_upload]
+            $config,
+            ['_is_file_upload' => $isFileUpload]
         ));
     }
 
+	private static function resolveAdapter(string $adapter): string
+	{
+		return "Framework\\Storage\\Adapter\\" . ucfirst($adapter) . "Adapter";
+	}
+
     /**
-     * @desc: 默认存储
-     * @return mixed
-     * 
+     * 获取默认存储值（local / oss / cos ...）
      */
-    public static function getDefaultStorage()
+    public static function getDefaultStorage(): string
     {
-        return self::getConfig('default');
+        $config =  new \Framework\Config\ConfigLoader(BASE_PATH . '/config' , 'storage.php');
+		$default = $config->get('storage.default');
+		
+
+		return $default ?? self::MODE_LOCAL;
+        //return config('storage.storage.default', self::MODE_LOCAL);
     }
 
     /**
-     * @desc: 获取存储配置
-     * @param string|null $name 名称
-     * @return mixed
-     * 
+     * 获取具体存储配置
      */
-    public static function getConfig(string $name = null)
+    public static function getStorageConfig(string $name): array
     {
-        if (!is_null($name)) {
-            return config('storage.' . $name, self::MODE_LOCAL);
+
+        $ConfigInit =  new \Framework\Config\ConfigLoader(BASE_PATH . '/config', 'storage.php');
+		$data = $ConfigInit->loadAll();
+		
+		$config = $data[$name] ?? null;
+
+        if (!$config || !is_array($config)) {
+            throw new StorageException("未找到存储配置：storage.{$name}");
         }
-        return config('storage.default');
+
+        return $config;
     }
 
     /**
-     * @param $name
-     * @param $arguments
-     * @return mixed
-     * 
+     * 静态转发（uploadFile / uploadBase64 / uploadServerFile）
      */
     public static function __callStatic($name, $arguments)
     {

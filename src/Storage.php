@@ -80,9 +80,9 @@ class Storage
 	{
 		if(file_exists(BASE_PATH . '/config/storage.php'))
 		{
-			$configFile = BASE_PATH . '/config/storage1.php';
+			$configFile = BASE_PATH . '/config/storage.php';
 		}else{
-			$configFile = __DIR__ . '/config/storage1.php';
+			$configFile = __DIR__ . '/config/storage.php';
 		}
 
         $ConfigInit =  new \Framework\Config\ConfigLoader( $configFile );

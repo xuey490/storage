@@ -1,4 +1,4 @@
-# 适配Symfony、NovaFrame的多文件上传组件
+# 适配Symfony、FssPHP的多文件上传组件
 
 
 ## 特性

@@ -27,6 +27,8 @@ class Storage
         self::MODE_S3
     ];
 
+	protected static ?array $configCache = null;
+	
     /**
      * 获取适配器实例
      */
@@ -73,25 +75,31 @@ class Storage
 	}
 	
 
-	/**
-	* 获取配置文件的数组
-	*/
-	private static function getConfig(): array
-	{
-		if(file_exists(BASE_PATH . '/config/storage.php'))
-		{
-			$configFile = BASE_PATH . '/config/storage.php';
-		}else{
-			$configFile = __DIR__ . '/config/storage.php';
-		}
 
-        $ConfigInit =  new \Framework\Config\ConfigLoader( $configFile );
-		$data = $ConfigInit->loadAll() ?? config('storage');
-		if($data != null ){
-			return $data;
-		}
-		return config('storage');
-	}
+    /**
+     * 统一获取配置，只读取一次
+     */
+    protected static function getConfig(): array
+    {
+        if (self::$configCache !== null) {
+            return self::$configCache;
+        }
+
+        $default = require __DIR__ . '/config/storage.php';
+
+        $projectConfigPath = BASE_PATH . '/config/storage.php';
+
+        if (file_exists($projectConfigPath)) {
+            $userConfig = require $projectConfigPath;
+            self::$configCache = array_replace_recursive($default, $userConfig);
+        } else {
+            self::$configCache = $default;
+        }
+
+        return self::$configCache;
+    }
+
+
 
     /**
      * 获取默认存储值（local / oss / cos ...）

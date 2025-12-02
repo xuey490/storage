@@ -111,8 +111,8 @@ abstract class AdapterAbstract implements AdapterInterface
 			$configFile = realpath(__DIR__ . '/../config/storage.php');
 		}
 
-        $ConfigInit =  new \Framework\Config\ConfigLoader( $configFile );
-		$data = $ConfigInit->loadAll() ?? config('storage');
+        #$ConfigInit =  new \Framework\Config\ConfigLoader( $configFile );
+		$data = require $configFile ; //$ConfigInit->loadAll() ?? config('storage');
 
 		return $data;
 	}
